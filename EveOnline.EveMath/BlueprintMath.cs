@@ -45,11 +45,11 @@ namespace EveOnline.EveMath
         }
 
         /// <summary>
-        /// The seconds added 
+        /// Time in minutes that it takes to research from ME or TE level 0 to level X
         /// </summary>
         public static int[] BlueprintResearchLevelModifiers =
         {
-            0, // Start at 1
+            0,
             105,
             250,
             595,
@@ -70,26 +70,24 @@ namespace EveOnline.EveMath
         /// <param name="currentResearchLevel">The current TE or ME rank of the blueprint</param>
         /// <param name="targetResearchLevel">The TE or ME rank that you'd like to research up to in this job</param>
         /// <param name="blueprintRank">The (hidden) rank of the blueprint</param>
-        /// <param name="baseResearchTime">The base research time of the blueprint</param>
         /// <param name="facilityModifier">The modifier granted by the facility</param>
         /// <param name="relevantSkillLevel">The skill level of Research for Time Effeciency or Metallurgy for Material Effeciency</param>
         /// <param name="advancedIndustrySkillLevel">The level of the Advanced Industry skill</param>
         /// <param name="implantModifier">Any reduction modifiers granted by implants</param>
         /// <returns>The time (in minutes) it'll take to complete a TE or ME research job</returns>
         public static double BlueprintResearchTime(
-            int currentResearchLevel,
-            int targetResearchLevel,
-            double blueprintRank,
-            double baseResearchTime,
-            double facilityModifier,
-            int relevantSkillLevel,
-            int advancedIndustrySkillLevel,
-            double implantModifier
+            int currentResearchLevel = 0,
+            int targetResearchLevel = 0,
+            double blueprintRank = 1,
+            double facilityModifier = 1,
+            int relevantSkillLevel = 0,
+            int advancedIndustrySkillLevel = 0,
+            double implantModifier = 1
             )
         {
-            return baseResearchTime * facilityModifier *
+            return facilityModifier *
                 (1 - (0.05 * relevantSkillLevel)) * (1 - (0.03 * advancedIndustrySkillLevel)) * implantModifier *
-                (BlueprintResearchLevelModifiers[targetResearchLevel] - BlueprintResearchLevelModifiers[currentResearchLevel]); // E.g. level 4 (595) - level 2 (250)
+                blueprintRank * (BlueprintResearchLevelModifiers[targetResearchLevel] - BlueprintResearchLevelModifiers[currentResearchLevel]); // E.g. level 4 (595) - level 2 (250)
         }
 
         /// <summary>

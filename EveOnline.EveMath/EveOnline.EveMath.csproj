@@ -43,7 +43,7 @@
     <Compile Include="CombatMath.cs" />
     <Compile Include="FittingMath.cs" />
     <Compile Include="IndustryMath.cs" />
-    <Compile Include="InventionMath.cs" />
+    <Compile Include="BlueprintMath.cs" />
     <Compile Include="SkillMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -79,5 +79,60 @@ namespace EveOnline.EveMath
 
             return trackingTerm * rangeTerm;
         }
+
+        /// <summary>
+        /// Get a rough estimate of Effective Hit Points; the ship's hit points (shield, armor, or hull) with your resistance applied.
+        /// </summary>
+        /// <example>1000 shields, 50% EM res., 60% Therm res. 60% Exp res., 70% Kin res., 60% averaged shield resistance. 
+        /// EffectiveHitPointsSimple(1000, 0.5, 0.6, 0.6, 0.7) = 1500 EHP</example>
+        /// <param name="baseHP">The total hit points of shields, armor, or hull</param>
+        /// <param name="resistEM">The EM resistance modifier</param>
+        /// <param name="resistExp">The Explosive resistance modifier</param>
+        /// <param name="resistTherm">The Thermal resistance modifier</param>
+        /// <param name="resistKin">The Kinetic resistance modifier</param>
+        /// <returns></returns>
+        public static double EffectiveHitPoints(
+            double baseHP,
+            double resistEM,
+            double resistExp,
+            double resistTherm,
+            double resistKin
+            )
+        {
+            double averageResistance = (resistEM + resistExp + resistTherm + resistKin) / 4; //Get your average resistance
+            return baseHP * (1 + averageResistance);
+        }
+
+        /// <summary>
+        /// Get an estimate of Effective Hit Points; the ship's hit points (shield, armor, or hull) with your resistance applied.
+        /// </summary>
+        /// <param name="baseHP">The total hit points of shields, armor, or hull</param>
+        /// <param name="resistEM">The EM resistance modifier</param>
+        /// <param name="resistExp">The Explosive resistance modifier</param>
+        /// <param name="resistTherm">The Thermal resistance modifier</param>
+        /// <param name="resistKin">The Kinetic resistance modifier</param>
+        /// <param name="attackEM">The percentage of incoming EM damage</param>
+        /// <param name="attackExp">The percentage of incoming Explosive damage</param>
+        /// <param name="attackTherm">The percentage of incoming Thermal damage</param>
+        /// <param name="attackKin">The percentage of incoming Kinetic damage</param>
+        /// <returns></returns>
+        public static double EffectiveHitPoints(
+            double baseHP,
+            double resistEM,
+            double resistExp,
+            double resistTherm,
+            double resistKin,
+            double attackEM,
+            double attackExp,
+            double attackTherm,
+            double attackKin
+            )
+        {
+            return baseHP * 
+                (1 + resistEM - attackEM) *
+                (1 + resistExp - attackExp) *
+                (1 + resistTherm - attackTherm) *
+                (1 + resistKin - attackKin);
+        }
     }
 }
