@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EveOnline.EveMath
 {
-    public static class InventionMath
+    public static class BlueprintMath
     {
         /// <summary>
         /// Calculate how long a blueprint copy job will take to complete
@@ -79,7 +79,7 @@ namespace EveOnline.EveMath
         public static double BlueprintResearchTime(
             int currentResearchLevel,
             int targetResearchLevel,
-            int blueprintRank,
+            double blueprintRank,
             double baseResearchTime,
             double facilityModifier,
             int relevantSkillLevel,
