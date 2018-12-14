@@ -134,5 +134,28 @@ namespace EveOnline.EveMath
                 (1 + resistTherm - attackTherm) *
                 (1 + resistKin - attackKin);
         }
+        
+        // https://forums.eveonline.com/t/targeting-time-locking-time-calculation/91133
+        // =40000/(ScanRes*ASINH(SigRadius)^2)
+        /// <summary>
+        /// Calculate how long in seconds it will take for a ship to lock a target, in seconds.
+        /// Due to how EVE's servers operate in 'ticks', time is rounded to the next second (e.g. 3.36s becomes 4s).
+        /// </summary>
+        /// <param name="shipScanResolution">The targetting resolution of the ship doing the targetting, in millimetres</param>
+        /// <param name="targetSignatureRadius">The signature resolution of thie ship being targetted, in metres</param>
+        /// <returns></returns>
+        public static int LockTime(
+            int shipScanResolution,
+            int targetSignatureRadius
+            )
+        {
+            // The C# Math library doesn't have a function for ArcSinH, so we'll calculate it ourselves
+            // If you're doing this equation in Excel or anothe language which has asinh, just use that
+            // https://www.codeproject.com/Articles/86805/An-introduction-to-numerical-programming-in-C
+            // asinh(x) = log(x + sqrt(x2 + 1))
+            double sigRadiusAsinh = Math.Log(targetSignatureRadius + Math.Sqrt(Math.Pow(targetSignatureRadius, 2) + 1));
+
+            return (int)Math.Ceiling(40000 / (shipScanResolution * Math.Pow(sigRadiusAsinh, 2)));
+        }
     }
 }
