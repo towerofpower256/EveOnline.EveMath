@@ -157,5 +157,25 @@ namespace EveOnline.EveMath
 
             return (int)Math.Ceiling(40000 / (shipScanResolution * Math.Pow(sigRadiusAsinh, 2)));
         }
+        
+        // https://eveonline-third-party-documentation.readthedocs.io/en/latest/formulas/combat.html
+        // "The ship alignment time (talign) depends on the ship’s inertia modifier (i) and the ships mass (m)"
+        // Basically, it'll calculate how long it'll take you from a full stop to entering warp.
+        // This does not take into account if you're already pointing in that direction, that should usually push you straight into warp.
+
+        // EveUni says "Base Time to Warp is essentially the time needed for this ship to align and accelerate
+        //    until it reaches 75% of its top speed and goes to warp. The time displayed here is the base calculated time
+        //     with no account for any warp related skills, modules or any other effects."
+
+        /// <summary>
+        /// Calculate the time it would take to align for a warp from a complete stand-still. Note that things are different if you're already pointing the direction that you want to warp.
+        /// </summary>
+        /// <param name="shipInertiaModifier">The ship's effective inertial modifier, taking into accounts modules, skills, etc.</param>
+        /// <param name="shipMass">The ship's effective mass, taking into accounts modules, skills, etc.</param>
+        /// <returns>The time in seconds it would take to align before warping.</returns>
+        public static double AlignToWarpTime(double shipInertiaModifier, double shipMass)
+        {
+            return (Math.Log(2) * shipInertiaModifier * shipMass) / 500000;
+        }
     }
 }
