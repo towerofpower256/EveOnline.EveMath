@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -74,7 +74,14 @@ namespace EveOnline.EveMath
             double turretOptimalRange,
             double turretFalloff)
         {
+            // How likely it is to hit the target with how fast the target is moving in relation to the ship doing the shooting
             double trackingTerm = 0.5 * ( (targetAngularVelocity * 40000) / (turretTrackingSpeed * targetSigRadius) );
+
+            // How likely it is to hit the target at the distance it is
+            // 100% within optimal range
+            // about 50% at optimal + under half of falloff
+            // about 6.5% @ optimal + over half of falloff
+            // about 0.2% @ optimal + falloff
             double rangeTerm = 0.5 * ( (Math.Max(0, targetDistance - turretOptimalRange) ) / turretFalloff );
 
             return trackingTerm * rangeTerm;
@@ -134,7 +141,7 @@ namespace EveOnline.EveMath
                 (1 + resistTherm - attackTherm) *
                 (1 + resistKin - attackKin);
         }
-        
+
         // https://forums.eveonline.com/t/targeting-time-locking-time-calculation/91133
         // =40000/(ScanRes*ASINH(SigRadius)^2)
         /// <summary>
@@ -157,5 +164,68 @@ namespace EveOnline.EveMath
 
             return (int)Math.Ceiling(40000 / (shipScanResolution * Math.Pow(sigRadiusAsinh, 2)));
         }
+
+        #region EWarAndLogistics
+
+        // Most of the EWar math comes from
+        // https://wiki.eveuniversity.org/Electronic_warfare
+
+        // Most of the logistics information comes from
+        // https://wiki.eveuniversity.org/Guide_to_Logistics
+        // https://forums-archive.eveonline.com/message/6306658/
+
+        /// <summary>
+        /// <para>Get the probability of an ECM jammer sucessfully jamming a target, based on the target's distance & sensor power vs the jammer's range and strength.</para>
+        /// <para>When an ECM jammer cycles, it "rolls the die" against this probability of success.</para>
+        /// </summary>
+        /// <param name="jammerStrength">The ECM jammer's strength against the target's sensor type, after bonuses and range effects are applied.</param>
+        /// <param name="targetSensorStrength">The target's sensor strength, after bonuses are applied.</param>
+        /// <param name="jammerAccuracyFalloff">The jammer's effective accuracy falloff distance.</param>
+        /// <param name="jammerOptimalRange">The jammer's optimal range.</param>
+        /// <param name="targetDistance">The target's distance from the jamming ship.</param>
+        /// <returns>The probabilty of the ECM jammer successfully jamming the target, as a number between 0 and 1.</returns>
+        public static double EcmChanceToJam(
+            double jammerStrength,
+            double jammerOptimalRange,
+            double jammerAccuracyFalloff,
+            double targetSensorStrength,
+            double targetDistance
+            )
+        {
+            // Jammer strength vs the target's sensor strength
+            double strengthTerm = jammerStrength / targetSensorStrength;
+
+            //How strong or weak the jammer is because of range
+            double rangeTerm = EWarAndLogisticsEffectiveness(jammerOptimalRange, jammerAccuracyFalloff, targetDistance);
+
+            return 1 * strengthTerm * rangeTerm;
+        }
+
+        /// <summary>
+        /// <para>Calculate the effectiveness modifier, depending on the module's range and the targets distance.</para>
+        /// <para>This applies to electronic warfare modules (e.g. target painters, tracking disruptors, sensor dampeners) as well as logistics modules (e.g. remote repair, sensor booter).</para>
+        /// <para>Note that it uses a similar calculation to turret range and accuracy, however angular velocity and signature radius has no effect.</para>
+        /// <para>For ECM jmmers, use <seealso cref="EcmChanceToJam"./></para>
+        /// </summary>
+        /// <param name="moduleOptimalRange">The module's effective optimal range.</param>
+        /// <param name="moduleAccuracyFalloff">The module's effective accuracy falloff distance.</param>
+        /// <param name="targetDistance">The targets distance from the ship.</param>
+        /// <returns>The effectiveness of the module, as a number between 0 and 1.</returns>
+        public static double EWarAndLogisticsEffectiveness(
+            double moduleOptimalRange,
+            double moduleAccuracyFalloff,
+            double targetDistance
+            )
+        {
+            //How strong or weak the module's effect is because of range
+            // 100% within optimal range
+            // about 50% at optimal + under half of falloff
+            // about 6.5% @ optimal + over half of falloff
+            // about 0.2% @ optimal + falloff
+            return 0.5 * ((Math.Max(0, targetDistance - moduleOptimalRange)) / moduleAccuracyFalloff);
+        }
+        
+
+        #endregion
     }
 }
