@@ -11,7 +11,47 @@ namespace EveOnline.EveMath
         /// <summary>
         /// Number of meters (M) in a an astronomical unit (AU).
         /// </summary>
-        public const decimal AU_TO_M = 149597870700;
+        public const long AU_TO_M = 149597870700;
+        
+        /// <summary>
+        /// Number of meters (M) in a light year (LY).
+        /// </summary>
+        public const long LY_TO_M = 9460730472580800;
+
+        /// <summary>
+        /// <para>Determine if a system is within range, measured by light years.</para>
+        /// <para>Useful for caculating if a system is within jump range or remote scanning range.</para>
+        /// <para>Note that the XYZ coordinates for systems in EVE are accurate down to the meter, and are typically very large numbers.</para>
+        /// </summary>
+        /// <param name="currentSystemX">The X part of the current system's coordinates.</param>
+        /// <param name="currentSystemY">The Y part of the current system's coordinates.</param>
+        /// <param name="currentSystemZ">The Z part of the current system's coordinates.</param>
+        /// <param name="targetSystemX">The X part of the target system's coordinates.</param>
+        /// <param name="targetSystemY">The Y part of the target system's coordinates.</param>
+        /// <param name="targetSystemZ">The Z part of the target system's coordinates.</param>
+        /// <param name="lightYearRange">The range of whatever you're trying to do, in light years.</param>
+        /// <returns>Returns if the target system is within range of whatever you're trying to do from the current system's position.</returns>
+        public static bool IsSystemWithinRange(
+            decimal currentSystemX,
+            decimal currentSystemY,
+            decimal currentSystemZ,
+            decimal targetSystemX,
+            decimal targetSystemY,
+            decimal targetSystemZ,
+            decimal lightYearRange
+            )
+        {
+            // Convert the range from ligth years to meters.
+            decimal rangeInM = lightYearRange * LY_TO_M;
+
+            // Get the distance from the current system to the target system.
+            // Remember, these numbers are going to be really big!
+            decimal distance = Math.Abs(currentSystemX - targetSystemX)
+                + Math.Abs(currentSystemY - targetSystemY)
+                + Math.Abs(currentSystemZ - targetSystemZ);
+
+            return (distance <= rangeInM); // Is the distance between the 2 systems less than or equal to the range.
+        }
 
         // https://eveonline-third-party-documentation.readthedocs.io/en/latest/formulas/combat.html
         // "The ship alignment time (talign) depends on the ship’s inertia modifier (i) and the ships mass (m)"
